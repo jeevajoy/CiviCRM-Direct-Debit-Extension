@@ -65,7 +65,7 @@ class DirectDebit_Utils_Contribution {
         require_once "CRM/Core/BAO/Address.php";
         require_once "CRM/Contact/BAO/Contact.php";
         require_once "CRM/Utils/Address.php";
-
+          
         foreach ( $contributionIDs as $contributionID ) {
            	$batchContribution =& new CRM_Core_DAO_EntityBatch( );
             $batchContribution->entity_table = 'civicrm_contribution';
@@ -84,7 +84,7 @@ class DirectDebit_Utils_Contribution {
             $params    = array( 'id' => $contributionID );
             CRM_Contribute_BAO_Contribution::retrieve( $params, $contribution, $ids );
             $contactId = $contribution['contact_id'];
-
+           
             // check if contribution is valid for gift aid
             if ( DirectDebit_Utils_Batching::isEligibleForGiftAid( $contactId, $contribution['receive_date'] , $contributionID ) ) {
                 $batchContribution->batch_id = $batchID;

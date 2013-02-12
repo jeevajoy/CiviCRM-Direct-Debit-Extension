@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="iso-8859-1" ?>
 
 <menu>
+ <item>
+     <path>civicrm/directdebit/prepare</path>
+     <title>Prepare Direct Debit</title>
+     <page_callback>DirectDebit_Form_Prepare</page_callback>
+	   <access_arguments>access CiviContribute</access_arguments>
+     <component>CiviContribute</component>
+  </item> 
   <item>
      <path>civicrm/directdebit/process</path>
      <title>Process Direct Debit</title>

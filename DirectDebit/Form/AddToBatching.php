@@ -54,7 +54,7 @@ class DirectDebit_Form_AddToBatching extends CRM_Contribute_Form {
     {	
 		parent::preProcess( );
 		
-		    $this->_contributionIds = $this->getContributionsList();
+		    $this->_contributionIds = $this->getContributionsList($_GET['start_date'], $_GET['end_date']);
 		    
 		    $this->_rejectedcontributionIds = $this->getRejectedContributionsList();
 		
@@ -64,7 +64,7 @@ class DirectDebit_Form_AddToBatching extends CRM_Contribute_Form {
             DirectDebit_Utils_Contribution::_validateContributionToBatch( $this->_contributionIds );
            
 		    $this->assign('selectedContributions', $total);
-        $this->assign('totalAddedContributions', count($added));
+            $this->assign('totalAddedContributions', count($added));
 		    $this->assign('alreadyAddedContributions', count($alreadyAdded));
 		    $this->assign('notValidContributions', count($notValid));
 
@@ -104,14 +104,23 @@ class DirectDebit_Form_AddToBatching extends CRM_Contribute_Form {
             $this->assign( 'contributionsRejectionRowsByActivity', $contributionsRejectionRowsByActivity );            
         }else{
             $this->assign( 'contributionsRejectionsRows', 0 );
-        } 
+        }
+       
+        $this->addElement( 'hidden', 'start_date', $_GET['start_date'] );
+        $this->addElement( 'hidden', 'end_date', $_GET['end_date']);
 	}
 	
-	function getContributionsList( ) {
-	
-	     $dtStartDay = date("YmdHis", strtotime(date('m').'/01/'.date('Y').' 00:00:00'));
-	     $dtEndDay = date("YmdHis", strtotime('-1 second',strtotime('+1 month',strtotime(date('m').'/01/'.date('Y').' 00:00:00'))));
-
+	function getContributionsList($start_date, $end_date ) {
+        
+	    if(!empty($start_date) AND !empty($end_date)) {
+            $dtStartDay =$start_date; 
+	        $dtEndDay = $end_date;   
+         }  
+         else {
+	       $dtStartDay = date("YmdHis", strtotime(date('m').'/01/'.date('Y').' 00:00:00'));
+	       $dtEndDay = date("YmdHis", strtotime('-1 second',strtotime('+1 month',strtotime(date('m').'/01/'.date('Y').' 00:00:00'))));
+         }
+        
        //$dtStartDay = '20110801000000';
        //$dtEndDay = '20110831235959';
 
@@ -119,7 +128,8 @@ class DirectDebit_Form_AddToBatching extends CRM_Contribute_Form {
 	     $activity_types = CIVICRM_DIRECT_DEBIT_FIRST_COLLECTION_ACTIVITY_ID.",".CIVICRM_DIRECT_DEBIT_STANDARD_PAYMENT_ACTIVITY_ID.",".CIVICRM_DIRECT_DEBIT_FINAL_PAYMENT_ACTIVITY_ID;
 	     $activity_sql = "SELECT * FROM civicrm_activity ca WHERE ca.activity_type_id IN ($activity_types) AND ca.status_id = %1
                                     AND activity_date_time >={$dtStartDay} AND activity_date_time <={$dtEndDay}"; 
-	                                                                                                       // AND activity_date_time <= %2  
+	                                                                                                       // AND activity_date_time <= %2 
+         //print_r($activity_sql);exit;                                                                                                
 	     $activity_params  = array( 
                                     1 => array( 1   , 'Integer' ) ,
                                     2 => array( date('Y-m-d H:i:s')   , 'String' ) 
@@ -159,8 +169,14 @@ class DirectDebit_Form_AddToBatching extends CRM_Contribute_Form {
     
    function getRejectedContributionsList( ) {
 	     $contributionIds = array();
-	     $dtStartDay = date("YmdHis", strtotime(date('m').'/01/'.date('Y').' 00:00:00'));
-	     $dtEndDay = date("YmdHis", strtotime('-1 second',strtotime('+1 month',strtotime(date('m').'/01/'.date('Y').' 00:00:00'))));
+	     if(!empty($_GET['start_date']) AND !empty($_GET['end_date'])) {
+            $dtStartDay = $_GET['start_date']; 
+	        $dtEndDay = $_GET['end_date'];   
+         }  
+         else {
+	       $dtStartDay = date("YmdHis", strtotime(date('m').'/01/'.date('Y').' 00:00:00'));
+	       $dtEndDay = date("YmdHis", strtotime('-1 second',strtotime('+1 month',strtotime(date('m').'/01/'.date('Y').' 00:00:00'))));
+         }
 
        // FIX ME : Change to - activity_date_time <= %3"
 	     $activity_types = CIVICRM_DIRECT_DEBIT_FIRST_COLLECTION_ACTIVITY_ID.",".CIVICRM_DIRECT_DEBIT_STANDARD_PAYMENT_ACTIVITY_ID.",".CIVICRM_DIRECT_DEBIT_FINAL_PAYMENT_ACTIVITY_ID;
@@ -231,7 +247,7 @@ class DirectDebit_Form_AddToBatching extends CRM_Contribute_Form {
      * @return None
      */
     public function postProcess() {
-          
+       
 		$params = $this->controller->exportValues( );
 		
 		$batchParams = array();
@@ -240,19 +256,19 @@ class DirectDebit_Form_AddToBatching extends CRM_Contribute_Form {
 		$batchParams['description'] = $params['description'];
 		$batchParams['batch_type' ] = "Gift Aid";
 
-    $session =& CRM_Core_Session::singleton( );
+        $session = CRM_Core_Session::singleton( );
 		$batchParams['created_id' ] = $session->get( 'userID' );
 		$batchParams['created_date'] = date("YmdHis");
 
-    require_once 'CRM/Core/Transaction.php';
-    $transaction = new CRM_Core_Transaction( );
-          
+       require_once 'CRM/Core/Transaction.php';
+      $transaction = new CRM_Core_Transaction( );
+         
 		require_once 'CRM/Core/BAO/Batch.php';
 		$createdBatch   =& CRM_Core_BAO_Batch::create( $batchParams );
 		$batchID        = $createdBatch->id;
 		$batchLabel     = $batchParams['title'];
         
-       
+    
        
     if (isset($_POST['contributionRejections'])&& $_POST['contributionRejections']) {
         $rejectionsCount = @count($_POST['contributionRejections']);
@@ -263,8 +279,8 @@ class DirectDebit_Form_AddToBatching extends CRM_Contribute_Form {
         }  
     }
     		
-		$this->_contributionIds = $this->getContributionsList();
-		
+		$this->_contributionIds = $this->getContributionsList($this->_submitValues['start_date'],$this->_submitValues['end_date'] ); 
+	
 		require_once 'DirectDebit/Utils/Contribution.php';
 		list( $total, $added, $notAdded ) =
             DirectDebit_Utils_Contribution::addContributionToBatch( $this->_contributionIds, $batchID );

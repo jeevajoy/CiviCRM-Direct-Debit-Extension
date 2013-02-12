@@ -93,8 +93,7 @@ class DirectDebit_Utils_Batching {
         $declaration = self::getDeclaration( $contactID, $date , $contributionID);
         $isEligible  = ( $declaration['eligible_for_direct_debit'] == 1 );
         // hook can alter the eligibility if needed
-        //DirectDebit_Utils_Hook::giftAidEligible( $isEligible, $contactID, $date, $contributionID );
-        
+        //DirectDebit_Utils_Hook::giftAidEligible( $isEligible, $contactID, $date, $contributionID );        
         return $isEligible;
     }
 
@@ -447,8 +446,8 @@ class DirectDebit_Utils_Batching {
     }
     
     function create_authorisation_file() {
-    
-        // Get the DD Setup Letter template
+      
+        // Get thes DD Setup Letter template
         require_once("CRM/Core/Config.php");
         $config =& CRM_Core_Config::singleton( );
         
