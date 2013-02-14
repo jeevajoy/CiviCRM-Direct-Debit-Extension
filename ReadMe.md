@@ -38,7 +38,18 @@ In our example it will be paperless
 
 define( 'CIVICRM_DIRECT_DEBIT_PAYMENT_INSTRUMENT_ID', 6 );
 
-The value of the payment instrument, can be found in the second column in Payment Instruments list page (Administer > CiviContribute > Payment Intruments). 
+The value of the payment instrument, can be found in the second column in Payment Instruments list page (Administer > CiviContribute > Payment Intruments).
+
+Create new DD Letter Template
+--------------------------------------- 
+Navigate to Mailings > Message Templates > Add Template.
+
+Copy the content from DD Letter Template.html and add in the template.
+
+Note the newly created Message Template ID and set in 
+
+define( 'CIVICRM_DIRECT_DEBIT_SETUP_LETTER_TEMPLATE_ID', '60' ); in direct_debit_settings.php
+
  
 Register the Direct Debit report
 ---------------------------------------
