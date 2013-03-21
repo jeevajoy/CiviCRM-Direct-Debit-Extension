@@ -108,9 +108,8 @@ The following URL (replace the relevant parts with your credentials) should rebu
 Now you will be able to see new menu item 'Direct Debit' and four options under it.
 
 1. Create Authorisation File 
-2. Process DD
-3. DD - Letter Template
-4. DD - Batch Report
+2. Process DD 
+3. DD - Batch Report
 
 
 
